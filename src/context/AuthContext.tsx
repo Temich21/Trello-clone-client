@@ -7,7 +7,7 @@ import { useLocalStorage } from "../hooks/useLocalStorage"
 type AuthContext = {
     user?: User
     signup: UseMutationResult<AxiosResponse, unknown, User>
-    login: UseMutationResult<{ token: string, user: User }, unknown, string>
+    login: UseMutationResult<{ accessTokens: string, user: User }, unknown, string>
     logout: UseMutationResult<AxiosResponse, unknown, void>
 }
 
@@ -29,7 +29,7 @@ type AuthProviderProps = {
 export function AuthProvider({ children }: AuthProviderProps) {
     const navigate = useNavigate()
     const [user, setUser] = useLocalStorage<User>("user")
-    const [token, setToken] = useLocalStorage<string>("token")
+    const [accessTokens, setAccessToken] = useLocalStorage<string>("token")
 
     const signup = useMutation({
         mutationFn: (user: User) => {
@@ -45,23 +45,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
             return axios
                 .post(`${import.meta.env.VITE_SERVER_URL}/login`, { id })
                 .then(res => {
-                    return res.data as { token: string, user: User }
+                    return res.data as { accessTokens: string, user: User }
                 })
         },
         onSuccess(data) {
             setUser(data.user)
-            setToken(data.token)
+            setAccessToken(data.accessTokens)
         }
     })
 
     const logout = useMutation({
         mutationFn: () => {
             return axios
-                .post(`${import.meta.env.VITE_SERVER_URL}/logout`, { token })
+                .post(`${import.meta.env.VITE_SERVER_URL}/logout`, { accessTokens })
         },
         onSuccess() {
             setUser(undefined)
-            setToken(undefined)
+            setAccessToken(undefined)
         }
     })
 
