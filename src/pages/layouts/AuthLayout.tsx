@@ -6,6 +6,7 @@ export function AuthLayout() {
     const location = useLocation()
     const isLoginPage = location.pathname === "/login"
 
+
     return (
         <FullScreenCard>
             <FullScreenCard.Body>
@@ -13,10 +14,13 @@ export function AuthLayout() {
             </FullScreenCard.Body>
             <FullScreenCard.BelowCard>
                 <Link
-                    to={isLoginPage ? "/sighup" : "/login"}
+                    to={isLoginPage ? "/singup" : "/login"}
                 >
                     {isLoginPage ? "Create Account" : "Login"}
                 </Link>
+                {/* <Button>
+                    Get request
+                </Button> */}
             </FullScreenCard.BelowCard>
         </FullScreenCard>
     )
