@@ -11,6 +11,7 @@ type AuthContext = {
     logout: UseMutationResult<AxiosResponse, unknown, void>
     setUser: React.Dispatch<React.SetStateAction<User | undefined>>
     setAccessToken: React.Dispatch<React.SetStateAction<string | undefined>>
+    setRefresToken: React.Dispatch<React.SetStateAction<string | undefined>>
 }
 
 type User = {
@@ -27,6 +28,7 @@ export type UserCredentials = {
 
 export type AuthResponse = {
     accessToken: string
+    refreshToken: string
     user: User
 }
 
@@ -43,7 +45,8 @@ type AuthProviderProps = {
 export function AuthProvider({ children }: AuthProviderProps) {
     const authInstance = import.meta.env.VITE_AUTH_API
     const [user, setUser] = useLocalStorage<User>("user")
-    const [, setAccessToken] = useLocalStorage<string>("token")
+    const [, setAccessToken] = useLocalStorage<string>("accessToken")
+    const [, setRefresToken] = useLocalStorage<string>("refreshToken")
 
     const singup = useMutation({
         mutationFn: (userCredentials: UserCredentials) => {
@@ -56,6 +59,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         onSuccess(data) {
             setUser(data.user)
             setAccessToken(data.accessToken)
+            setRefresToken(data.refreshToken)
         }
     })
 
@@ -70,6 +74,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         onSuccess(data) {
             setUser(data.user)
             setAccessToken(data.accessToken)
+            setRefresToken(data.refreshToken)
         }
     })
 
@@ -84,7 +89,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
     })
 
-    return <Context.Provider value={{ singup, login, user, logout, setUser, setAccessToken }} >
+    return <Context.Provider value={{ singup, login, user, logout, setUser, setAccessToken, setRefresToken }} >
         {children}
     </Context.Provider>
 }

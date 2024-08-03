@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../../context/Auth/AuthContext";
-import { useBoard } from "../../context/Board/BoardContext";
+import { useBoard } from "../../context/Boards/BoardsContext";
 import { SideMenu } from "../../components/SideMenu/SideMenu";
 import { useEffect } from "react";
 

@@ -1,9 +1,9 @@
 import { UseMutationResult, useMutation } from "@tanstack/react-query"
-import { Dispatch, ReactNode, SetStateAction, createContext, useContext, useReducer, useState } from "react"
+import { Dispatch, ReactNode, SetStateAction, createContext, useContext, useState } from "react"
 import $api from "../../services/axiosInstance"
 import { useNavigate } from "react-router-dom"
 
-type BoardContext = {
+type BoardsContext = {
     boards: Board[]
     editedBoard: string
     setEditedBoard: Dispatch<SetStateAction<string>>
@@ -27,18 +27,20 @@ type UpdateBoardCredentials = Partial<CreateBoardCredentials> & {
     id: string
 }
 
-const Context = createContext<BoardContext | null>(null)
+const Context = createContext<BoardsContext | null>(null)
 
 export function useBoard() {
-    return useContext(Context) as BoardContext
+    return useContext(Context) as BoardsContext
 }
 
 type BoardProviderProps = {
     children: ReactNode
 }
 
-export function BoardProvider({ children }: BoardProviderProps) {
-    const [localBoard, dispatch] = useReducer(boardReducer, undefined)
+export function BoardsProvider({ children }: BoardProviderProps) {
+    const [boards, setBoards] = useState<Board[]>([])
+    const [editedBoard, setEditedBoard] = useState<string>('')
+    const navigate = useNavigate()
 
     const getBoards = useMutation({
         mutationFn: (userId: string) => {

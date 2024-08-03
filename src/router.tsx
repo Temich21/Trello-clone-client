@@ -3,7 +3,7 @@ import { AuthLayout } from "./pages/layouts/AuthLayout";
 import { Login } from "./pages/Login";
 import { Singup } from "./pages/Singup";
 import { AuthProvider } from "./context/Auth/AuthContext";
-import { BoardProvider } from "./context/Board/BoardContext";
+import { BoardsProvider } from "./context/Boards/BoardsContext";
 import { RootLayout } from "./pages/layouts/RootLayout";
 import { Home } from "./pages/Home";
 import { Board } from "./pages/Board";
@@ -39,9 +39,9 @@ export const router = createBrowserRouter([
 function ContextWrapper() {
     return (
         <AuthProvider>
-            <BoardProvider>
+            <BoardsProvider>
                 <Outlet />
-            </BoardProvider>
+            </BoardsProvider>
         </AuthProvider>
     )
 }

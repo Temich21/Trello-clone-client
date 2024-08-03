@@ -1,14 +1,17 @@
 import { useState } from 'react'
 import { useAuth } from "../../context/Auth/AuthContext";
-import { useBoard } from '../../context/Board/BoardContext';
+import { useBoard } from '../../context/Boards/BoardsContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronRight, faChevronLeft, faPlus } from '@fortawesome/free-solid-svg-icons'
+import { useNavigate } from 'react-router-dom';
 
 export function SideMenu() {
+    const navigate = useNavigate()
+
     const { logout } = useAuth()
     const { boards } = useBoard()
 
-    const [isOpen, setIsOpen] = useState(false)
+    const [isOpen, setIsOpen] = useState(true)
 
     const handleClick = () => {
         setIsOpen(prev => !prev)
@@ -22,7 +25,10 @@ export function SideMenu() {
         isOpen ? (
             <nav className="bg-[#ad4c7a] h-screen w-60 border-[#ac6285] border-r-2 p-2 pt-4 text-white">
                 <div className='flex justify-between items-center text-xl font-semibold pb-2 pr-2 '>
-                    <div className='cursor-pointer'>
+                    <div
+                        className='cursor-pointer'
+                        onClick={() => navigate('')}
+                    >
                         Home
                     </div>
                     <FontAwesomeIcon
@@ -39,12 +45,13 @@ export function SideMenu() {
                     />
                 </div>
                 <ul className='pl-2 pb-2'>
-                    {boards.length && boards.map(board => (
+                    {boards.length && boards.map(({ id, name }) => (
                         <li
                             className='cursor-pointer'
-                            key={board.id}
+                            key={id}
+                            onClick={() => navigate(`board/${id}`)}
                         >
-                            {board.name}
+                            {name}
                         </li>
                     ))}
                 </ul>

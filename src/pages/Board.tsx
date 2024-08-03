@@ -1,80 +1,91 @@
-// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-// import { faEllipsis, faPlus } from '@fortawesome/free-solid-svg-icons'
-
 import { useParams } from "react-router-dom"
-import $api from "../services/axiosInstance"
-import { Board as BoardType } from "../context/Board/BoardContext"
-import { useQuery } from "@tanstack/react-query"
+import { useEffect, useReducer } from 'react'
+import AddNew from '../components/ColumnCard/AddNew'
+import ColumnCard from '../components/ColumnCard/ColumnCard'
+import { useBoardData, useCreateColumn, useDeleteColumn, useUpdateColumn, Column, useCreateCard, Card, useUpdateCard, useDeleteCard } from '../services/BoardService'
+import { boardReducer } from "../reducer/BoardReducer"
 
-const getBoard = async (boardId: string) => {
-    const response = await $api.get<BoardType>(`/board/${boardId}`)
-    return response.data
-}
 
 export function Board() {
     const { id } = useParams<{ id: string }>()
 
-    const { data: board, isLoading, isError } = useQuery({
-        queryKey: ["board", id],
-        queryFn: () => getBoard(id || '')
-    })
+    const { data: board, isLoading, isError } = useBoardData(id || '')
 
-    if (isLoading) {
-        return <div>Loading...</div>
+    const [localBoard, dispatch] = useReducer(boardReducer, undefined)
+
+    useEffect(() => {
+        if (board) {
+            dispatch({ type: 'SET_BOARD', payload: board })
+        }
+    }, [board])
+
+    const handleAddColumn = (name: string | undefined) => {
+        if (name == null || name === "") return
+        createColumn.mutate({ name, boardId: id || '' })
     }
 
-    if (isError) {
-        return <div>Error loading board data</div>
+    const updateLocalColumnForCreate = (newColumn: Column) => {
+        dispatch({ type: 'ADD_COLUMN', payload: newColumn })
     }
+
+    const updateLocalColumnForUpdate = (updatedColumn: Column) => {
+        dispatch({ type: 'UPDATE_COLUMN', payload: updatedColumn })
+    }
+
+    const updateLocalColumnForDelete = (columnId: string) => {
+        dispatch({ type: 'DELETE_COLUMN', payload: columnId })
+    }
+
+    const updateLocalCardForCreate = (newCard: Card) => {
+        dispatch({ type: 'ADD_CARD', payload: newCard })
+    }
+
+    const updateLocalCardForUpdate = (updatedCard: Card) => {
+        dispatch({ type: 'UPDATE_CARD', payload: updatedCard })
+
+    }
+
+    const updateLocalCardForDelete = (cardId: string) => {
+        dispatch({ type: 'DELETE_CARD', payload: cardId })
+    }
+
+    const createColumn = useCreateColumn(updateLocalColumnForCreate)
+    const updateColumn = useUpdateColumn(updateLocalColumnForUpdate)
+    const deleteColumn = useDeleteColumn(updateLocalColumnForDelete)
+
+    const createCard = useCreateCard(updateLocalCardForCreate)
+    const updateCard = useUpdateCard(updateLocalCardForUpdate)
+    const deleteCard = useDeleteCard(updateLocalCardForDelete)
+
+    if (isLoading) return <div>Loading...</div>
+    if (isError) return <div>Error loading board data</div>
 
     return (
-        <main>
+        <div className="bg-[#cd5a91] h-screen w-screen">
             <header>
                 <h1 className='p-4 pl-6 text-2xl text-white font-bold bg-[#9c446e]'>
-                    {board?.name || 'Board not found'}
+                    {localBoard?.name}
                 </h1>
             </header>
-            <div className='mt-3 ml-3 text-xl'>
-                Data about Board...
-            </div>
-        </main>
-        // <main className='bg-[#cd5a91] h-screen w-screen'>
-        //     <header>
-        //         <h1 className='p-4 pl-6 text-2xl text-white font-bold bg-[#9c446e]'>
-        //             My first board
-        //         </h1>
-        //     </header>
-        //     <div className="flex mt-3 ml-3 gap-5">
-        //         <section className='w-60 p-3 bg-[#f1f2f4] rounded-lg'>
-        //             <div className="flex justify-between items-center mb-2">
-        //                 <h3 className='font-semibold'>My first column</h3>
-        //                 <FontAwesomeIcon className='text-gray-600' icon={faEllipsis} />
-        //             </div>
-        //             <ul className='flex flex-col gap-2'>
-        //                 <li className='p-2 rounded-md shadow-md bg-white'>My first Card</li>
-        //                 <li className='p-2 rounded-md shadow-md bg-white'>My second Card</li>
-        //             </ul>
-        //             <div className='mt-4 flex justify-start items-center gap-2 font-semibold text-gray-600'>
-        //                 <FontAwesomeIcon icon={faPlus} />
-        //                 Add new Card
-        //             </div>
-        //         </section>
-        //         <section className='w-60 p-3 bg-[#f1f2f4] rounded-lg'>
-        //             <div className="flex justify-between items-center mb-2">
-        //                 <h3 className='font-semibold'>My second column</h3>
-        //                 <FontAwesomeIcon className='text-gray-600' icon={faEllipsis} />
-        //             </div>
-        //             <ul className='flex flex-col gap-2'>
-        //                 <li className='p-2 rounded-md shadow-md bg-white'>My first Card</li>
-        //                 <li className='p-2 rounded-md shadow-md bg-white'>My second Card</li>
-        //             </ul>
-        //             <div className='mt-4 flex justify-start items-center gap-2 font-semibold text-gray-600'>
-        //                 <FontAwesomeIcon icon={faPlus} />
-        //                 Add new Card
-        //             </div>
-        //         </section>
-        //     </div>
-        // </main>
+            <main className='flex flex-wrap gap-3 mt-3 ml-3'>
+                {!!localBoard?.columns.length
+                    && localBoard?.columns.map((column) => (
+                        <ColumnCard
+                            column={column}
+                            updateColumn={updateColumn}
+                            deleteColumn={deleteColumn}
+                            createCard={createCard}
+                            updateCard={updateCard}
+                            deleteCard={deleteCard}
+                        />
+                    ))
+                }
+                <AddNew
+                    handleAdd={handleAddColumn}
+                    isColumn={true}
+                />
+            </main>
+        </div >
     )
 }
 
